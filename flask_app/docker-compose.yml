@@ -1,0 +1,39 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "5001:5000"
+    depends_on:
+      - redis
+      - db
+    networks:
+      - flask_network
+    environment:
+      - FLASK_ENV=development
+      - FLASK_APP=app.py
+
+  redis:
+    image: "redis:alpine"
+    networks:
+      - flask_network
+
+  db:
+    image: "postgres:alpine"
+    networks:
+      - flask_network
+    volumes: 
+      - db-data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=admin_pass
+      - POSTGRES_DB=flask_db
+
+networks:
+  flask_network:
+    driver: bridge
+
+volumes:
+  db-data:
+    driver: local
